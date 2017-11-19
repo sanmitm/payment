@@ -1,0 +1,60 @@
+@(widgets: Seq[Widget], form: Form[WidgetForm.Data], postUrl: Call)(implicit request: MessagesRequestHeader)
+
+  @main("Widgets") {
+
+    <h1>Widgets</h1>
+
+    
+
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Price</th>
+      </thead>
+      <tbody>
+      @for(w <- widgets) {
+        <tr><td>@w.name</td><td>@w.state</td><td>@w.zip</td><td>@w.account_type</td><td>@w.card_number</td><td>@w.expiration_date</td>
+          <td>@w.cvv2</td><td>@w.account_number</td><td>@w.prepaid</td><td>@w.amount</td></tr>
+      }
+      </tbody>
+    </table>
+
+    <hr/>
+
+    @* Global errors are not tied to any particular form field *@
+    @if(form.hasGlobalErrors) {
+      @form.globalErrors.map { error: FormError =>
+        <div>
+          @error.key: @error.message
+        </div>
+      }
+    }
+
+    @helper.form(postUrl) {
+      @helper.CSRF.formField
+
+      @helper.inputText(form("name"))
+
+      @helper.inputText(form("state"))
+
+      @helper.inputText(form("zip"))
+
+      @helper.inputText(form("account_type"))
+
+      @helper.inputText(form("card_number"))
+
+      @helper.inputText(form("expiration_date"))  
+
+      @helper.inputText(form("cvv2"))  
+
+      @helper.inputText(form("account_number"))  
+
+      @helper.inputText(form("prepaid"))  
+
+      @helper.inputText(form("amount"))  
+
+
+
+      <button>Create widget</button>
+    }
+
+  }

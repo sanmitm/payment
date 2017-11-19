@@ -1,0 +1,16 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           controllers.WidgetController.index
+
+# Widgets
+GET     /widgets                    controllers.WidgetController.listWidgets
+POST    /widgets                    controllers.WidgetController.createWidget
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
+#Call to API function
+GET		/sendData					controllers.WidgetController.sendData(name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double)			
