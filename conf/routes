@@ -13,4 +13,4 @@ POST    /widgets                    controllers.WidgetController.createWidget
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 #Call to API function
-GET		/sendData					controllers.WidgetController.sendData(name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double)			
+GET		/sendData					controllers.WidgetController.sendData(id:Long,name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double)			

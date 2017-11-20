@@ -77,7 +77,7 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
      var id = UUID.nameUUIDFromBytes(s.getBytes()).getMostSignificantBits();
      val widget1 = Widget(id,data.name,data.state,data.zip, data.account_type,data.card_number, data.expiration_date, data.cvv2, data.account_number,data.prepaid, data.amount)
       widgetService.insert(widget1)
-      Redirect(routes.WidgetController.sendData(name = data.name, state = data.state, zip = data.zip, account_type = data.account_type, card_number = data.card_number,   
+      Redirect(routes.WidgetController.sendData(id,name = data.name, state = data.state, zip = data.zip, account_type = data.account_type, card_number = data.card_number,   
         expiration_date = data.expiration_date, cvv2 = data.cvv2, account_number = data.account_number, prepaid = data.prepaid, amount = data.amount) )
     }
 
@@ -87,7 +87,7 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
 
 
 
-  def sendData(name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double) = Action { implicit ctx =>
+  def sendData(id:Long,name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double) = Action { implicit ctx =>
 
      
       var url1 = "https://tyrion.primorisservices.com/payments/direct"
@@ -146,31 +146,57 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
                        
                        println("Merchant resp val is .. " +response.body)
                        val json = Json.parse(response.body)
-                       var m = (json \ "data" \ "amount").as[String]
+                       
+                       var resp_account_token = (json \ "data" \ "account_token").as[String]
+                       var resp_primoris_fee = (json \ "data" \ "primoris_fee").as[String]
+                       var resp_installment_total = (json \ "data" \ "installment_total").as[String]
+                       var resp_callID = (json \ "data" \ "callID").as[String]
+                       var resp_settlement_id = (json \ "data" \ "settlement_id").as[String]
+                       var resp_payment_detail_id = (json \ "data" \ "payment_detail_id").as[String]
+                       var resp_payment_date = (json \ "data" \ "payment_date").as[String]
+                       var resp_amount = (json \ "data" \ "amount").as[String]
+                       var resp_payment_token = (json \ "data" \ "payment_token").as[String]
+                       var resp_payment_token_status = (json \ "data" \ "payment_token_status").as[String]
+                       var resp_payment_type = (json \ "data" \ "payment_type").as[String]
+                       var resp_account_status = (json \ "data" \ "account_status").as[String]
+                       var resp_payment_name = (json \ "data" \ "payment_name").as[String]
+                       var resp_amount_total = (json \ "data" \ "amount_total").as[String]
+                       var resp_installment_made = (json \ "data" \ "installment_made").as[String]
+                       var resp_confirmation_number = (json \ "data" \ "confirmation_number").as[String]
+                       var resp_installment_plan = (json \ "data" \ "installment_plan").as[String]
+                       var resp_add_date = (json \ "data" \ "add_date").as[String]
+                       var resp_retry_id = (json \ "data" \ "retry_id").as[String]
+                       var resp_authorization_code = (json \ "data" \ "authorization_code").as[String]
+                       var resp_trans_id = (json \ "data" \ "trans_id").as[String]
+
                        println("Value of json is " + json)
-                       println("Value of amount is " + m)
-                      //  val elements = (json \\ "data").children
-                      //  for (acct <- elements) {
-                      //     val m = acct.extract[Widget]
-                      //     println(s"Account: ${m.name}, ${m.amount}")
-                          
-                      // }
-                      // var n = (response.json \ "payment_token_status").as[String]
-                      // println("Value of m" + n)    
-                      // println("Value of n" + n)
-                       println("In status match")
-                       
+                       println("Value of account token is " + resp_account_token)
+                       println("Value of primoris fee is " + resp_primoris_fee)
+                       println("Value of resp_installment_total is " + resp_installment_total)
+                       println("Value of resp_callID is " + resp_callID)
+                       println("Value of resp_settlement_id is " + resp_settlement_id)
+                       println("Value of resp_payment_detail_id is " + resp_payment_detail_id)
+                       println("Value of resp_payment_date is " + resp_payment_date)
+                       println("Value of resp_amount is " + resp_amount)
 
+                       println("Value of resp_payment_token is " + resp_payment_token)
+                       println("Value of resp_payment_token_status is " + resp_payment_token_status)
+                       println("Value of resp_payment_type is " + resp_payment_type)
+                       println("Value of resp_account_status is " + resp_account_status)
+                       println("Value of resp_payment_name is " + resp_payment_name)
+                       println("Value of resp_amount_total is " + resp_amount_total)
+                       println("Value of resp_installment_made is " + resp_installment_made)
+                       println("Value of resp_confirmation_number is " + resp_confirmation_number)
+                       println("Value of resp_installment_plan is " + resp_installment_plan)
+                       println("Value of resp_add_date is " + resp_add_date)
+                       println("Value of resp_retry_id is " + resp_retry_id)
+                       println("Value of resp_authorization_code is " + resp_authorization_code)
+                       println("Value of resp_trans_id is " + resp_trans_id)
 
-                       //var m = Json.parse(response.bodyAsSource)
-                      // println("2nd call val is "+m ) 
-                       
-                       //this.stat = (m \ "Status").as[String]
-                       //this.tr =(m \ "Transaction_id").as[String]
-                       //val co = (m \ "Code").as[String]
-                     //  this.amt = (m \ "Amount").as[String]
-                     //  println("Parsed values: Status ->"+ stat + " Transaction_id ->" + tr + " Code ->"+co)
-                       //println("Parsed value: Status -> "+ stat)
+                      val transaction = Transaction(resp_trans_id,resp_authorization_code,resp_account_token,id,resp_primoris_fee,resp_installment_total,resp_callID,resp_settlement_id,resp_payment_detail_id,resp_payment_date ,resp_amount,resp_payment_token,resp_payment_token_status,resp_payment_type,resp_account_status,resp_payment_name ,resp_amount_total ,resp_installment_made,resp_confirmation_number,resp_installment_plan,resp_add_date,resp_retry_id)
+                      widgetService.insertTransaction(transaction)
+                     
+                      println("In status match")
                        
                    
                      Ok(response.body) 
