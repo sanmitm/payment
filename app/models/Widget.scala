@@ -35,7 +35,7 @@ class WidgetRepository @Inject() (DB: Database) {
     def insert(widget:Widget) = {
     DB.withConnection { implicit connection =>
     	println("Value of name and amount is " + widget.name + "And" + widget.amount)
-        SQL("insert into Computer values({id},{name},{state},{zip},{account_type},{card_number},{expiration_date},{cvv2},{account_number},{prepaid},{amount})").on('id -> widget.id,
+        SQL("insert into Card_Details values({id},{name},{state},{zip},{account_type},{card_number},{expiration_date},{cvv2},{account_number},{prepaid},{amount})").on('id -> widget.id,
         			'name -> widget.name,
         			'state -> widget.state,
                     'zip -> widget.zip,
@@ -57,7 +57,7 @@ class WidgetRepository @Inject() (DB: Database) {
     def insertTransaction(transaction:Transaction) = {
     DB.withConnection { implicit connection =>
     	println("Value of trans id and id is " + transaction.trans_id + "And" + transaction.id)
-        SQL("insert into Transaction values({trans_id},{authorization_code},{account_token},{id},{primoris_fee},{installment_total},{callID},{settlement_id},{payment_detail_id},{payment_date},{amount},{payment_token},{payment_type},{account_status},{payment_name},{amount_total},{installment_made},{confirmation_number},{installment_plan},{add_date},{retry_id})").on('trans_id -> transaction.trans_id,
+        SQL("insert into transaction values({trans_id},{authorization_code},{account_token},{id},{primoris_fee},{installment_total},{callID},{settlement_id},{payment_detail_id},{payment_date},{amount},{payment_token},{payment_type},{account_status},{payment_name},{amount_total},{installment_made},{confirmation_number},{installment_plan},{add_date},{retry_id})").on('trans_id -> transaction.trans_id,
         			'authorization_code -> transaction.authorization_code,
         			'account_token -> transaction.account_token,
                     'id -> transaction.id,

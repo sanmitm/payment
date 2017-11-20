@@ -1,24 +1,19 @@
-@(widgets: Seq[Widget], form: Form[WidgetForm.Data], postUrl: Call)(implicit request: MessagesRequestHeader)
+@(form: Form[WidgetForm.Data], postUrl: Call)(implicit request: MessagesRequestHeader)
 
-  @main("Widgets") {
+  @main("Card Details") {
 
-    <h1>Widgets</h1>
+ <!-- MAIN CONTENT AREA -->
+<div class="main-content">
+    <div class="container">                             
+        <div class="row show-grid">
+            <div class="span12" data-original-title="">
+                <div class="clear_both"></div>
+                <div class="col-wrapper">                        
+                <div class="row show-grid">
+<!-- START LEFT-SIDE CONTACT FORM AREA -->
+<div class="contact-info span8 ">
+<h1><b>Card Details</b></h1>
 
-    
-
-    <table>
-      <thead>
-        <tr><th>Name</th><th>Price</th>
-      </thead>
-      <tbody>
-      @for(w <- widgets) {
-        <tr><td>@w.name</td><td>@w.state</td><td>@w.zip</td><td>@w.account_type</td><td>@w.card_number</td><td>@w.expiration_date</td>
-          <td>@w.cvv2</td><td>@w.account_number</td><td>@w.prepaid</td><td>@w.amount</td></tr>
-      }
-      </tbody>
-    </table>
-
-    <hr/>
 
     @* Global errors are not tied to any particular form field *@
     @if(form.hasGlobalErrors) {
@@ -28,33 +23,35 @@
         </div>
       }
     }
-
+<table style="width:40%;color:"blue"" >
+  <tr>   
     @helper.form(postUrl) {
       @helper.CSRF.formField
 
-      @helper.inputText(form("name"))
+  <td>    @helper.inputText(form("name"),'_label -> <b>Name</b>)</td></tr>
 
-      @helper.inputText(form("state"))
+  <tr><td>    @helper.inputText(form("state"),'_label -> <b>State</b>)</td><td>  @helper.inputText(form("zip"),'_label -> <b>Zip</b>) </td></tr>
 
-      @helper.inputText(form("zip"))
+      
 
-      @helper.inputText(form("account_type"))
+   <tr><td>   @helper.inputText(form("account_type"),'_label -> <b>Account Type (Card or ACH)</b>) </td></tr>
 
-      @helper.inputText(form("card_number"))
+   <tr><td>    @helper.inputText(form("card_number"),'_label -> <b>Card Number</b>) </td> <td>  @helper.inputText(form("expiration_date"),'_label -> <b>Expiry Date (MMYY)</b>) </td>
 
-      @helper.inputText(form("expiration_date"))  
+       
 
-      @helper.inputText(form("cvv2"))  
+   <td>   @helper.inputPassword(form("cvv2"),'_label -> <b>CVV</b>) </td> </tr>
 
-      @helper.inputText(form("account_number"))  
+   <tr><td>  @helper.inputText(form("account_number"),'_label -> <b>Account Number</b>)  </td>
 
-      @helper.inputText(form("prepaid"))  
+    <td>  @helper.inputText(form("prepaid"),'_label -> <b>Prepaid (Yes/No)</b>)  </td>
 
-      @helper.inputText(form("amount"))  
+    <td>  @helper.inputText(form("amount"),'_label -> <b>Amount</b>)  </td></tr>
 
 
 
-      <button>Create widget</button>
+    <tr><td>  <button>Create widget</button> </td></tr>
+
     }
 
   }
