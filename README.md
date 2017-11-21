@@ -6,6 +6,6 @@ Start the Play app:
 sbt run
 ```
 
-And open [http://localhost:9000/](http://localhost:9000/)
+And open [http://localhost:9000/card](http://localhost:9000/card)
 
 
