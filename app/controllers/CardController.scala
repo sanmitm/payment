@@ -34,13 +34,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 
-class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesControllerComponents)(ws: WSClient) extends MessagesAbstractController(cc) {
-  import WidgetForm._
+class CardController @Inject()(cardService: CardRepository,cc: MessagesControllerComponents)(ws: WSClient) extends MessagesAbstractController(cc) {
+  
+  import CardForm._
 
 
 
   
-  private val postUrl = routes.WidgetController.createWidget()
+  private val postUrl = routes.CardController.createCardDetails()
+  private var apiUrl = "https://tyrion.primorisservices.com/payments/direct"
+  private var publicKey = "H6ZJBESFRi0tXcO4gPgYq0N7"
+  private var privateKey = "rav6auQvi6aOyaKI1ldXJwlt" 
 
 
   def index = Action {
@@ -48,12 +52,12 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
   }
 
 
-  def errorForm(status:Int,error:String) = Action {
+  def responseErrorForm(status:Int,error:String) = Action {
     
     Ok(views.html.errorForm(status,error))
   }
 
-  def errorForm1(error:String) = Action {
+  def errorForm(error:String) = Action {
     
     Ok(views.html.error(error))
   }
@@ -64,28 +68,28 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
     Ok(views.html.successForm(trans_id,status,body,total_amount))
   }
 
-  def listWidgets = Action { implicit request: MessagesRequest[AnyContent] =>
-    Ok(views.html.listWidgets(form, postUrl))
+  def listCardForm = Action { implicit request: MessagesRequest[AnyContent] =>
+    Ok(views.html.listCardForm(form, postUrl))
   }
 
-  // This will be the action that handles the form post
-  def createWidget = Action { implicit request: MessagesRequest[AnyContent] =>
+  // This will be the action that handles the form post method
+  def createCardDetails = Action { implicit request: MessagesRequest[AnyContent] =>
+    
     val errorFunction = { formWithErrors: Form[Data] =>
      
-      BadRequest(views.html.listWidgets(formWithErrors, postUrl))
+      BadRequest(views.html.listCardForm(formWithErrors, postUrl))
     }
     
     
     val successFunction = { data: Data =>
     
-     val now = Calendar.getInstance().getTime()
-     var s = data.name+data.account_number+now.toString;
-     var U_UID = UUID.nameUUIDFromBytes(s.getBytes()).getMostSignificantBits();
+     val time = Calendar.getInstance().getTime()
+     var uniqueString = data.name+data.account_number+time.toString;
+     var U_UID = UUID.nameUUIDFromBytes(uniqueString.getBytes()).getMostSignificantBits();
      var id = Math.abs(U_UID)
-     val widget1 = Widget(id,data.name,data.state,data.zip, data.account_type,data.card_number, data.expiration_date, data.cvv2, data.account_number,data.prepaid, data.amount)
-      widgetService.insert(widget1)
-      Redirect(routes.WidgetController.sendData(id,name = data.name, state = data.state, zip = data.zip, account_type = data.account_type, card_number = data.card_number,   
-        expiration_date = data.expiration_date, cvv2 = data.cvv2, account_number = data.account_number, prepaid = data.prepaid, amount = data.amount) )
+
+      Redirect(routes.CardController.sendDataToApi(id,name = data.name, state = data.state, zip = data.zip, account_type = data.account_type, card_number = data.card_number,   
+        expiration_date = data.expiration_date, cvv2 = data.cvv2, account_number = data.account_number, prepaid = data.prepaid, amount = data.amount))
     }
 
     val formValidationResult = form.bindFromRequest
@@ -94,14 +98,14 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
 
  
   // This will be the action that sends the form data to primorisservices api
-  def sendData(id:Long,name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double) = Action { implicit request =>
+  def sendDataToApi(id:Long,name :String, state:String, zip :String, account_type:String, card_number:String,expiration_date:String,cvv2:String,account_number:String, prepaid:String, amount:Double) = Action { implicit request =>
 
      
-      var url1 = "https://tyrion.primorisservices.com/payments/direct"
-       import play.api.libs.json.Json
-      var trans_id = ""
-      var stat = 0
-      var error1 = ""
+      
+       
+      var transactionId = ""
+      var transactionStatus = 0
+      var postError = ""
       val name1 = name.toString
       val state1 = state.toString
       val zip1 = zip.toString
@@ -112,17 +116,17 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
       val account_number1 = account_number.toString
       val prepaid1 = prepaid.toString
       val amount1 = amount.toString
-      var total_amount = ""
+      var totalAmount = ""
 
-      println("In send to Bank")
+      
        
-             val result: Future[Result] = ws.url(url1)
+             val result: Future[Result] = ws.url(apiUrl)
                  .withHttpHeaders(CONTENT_TYPE -> "application/x-www-form-urlencoded") 
                  .withRequestTimeout(10000.millis) 
                  .post(
                     Map(
-                      "key" -> Seq("H6ZJBESFRi0tXcO4gPgYq0N7"),
-                      "private_key" -> Seq("rav6auQvi6aOyaKI1ldXJwlt"),
+                      "key" -> Seq(publicKey),
+                      "private_key" -> Seq(privateKey),
                       "name" -> Seq(name1),
                       "zip" -> Seq(zip1), 
                       "account_type" -> Seq(account_type1), 
@@ -138,11 +142,11 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
                    response.status match { 
                         case s if s < 300 =>{ 
                        
-                       println("Merchant resp val is .. " +response.body)
+                       println("API response is " +response.body)
                       
                        val json = Json.parse(response.body)
-                       error1 = (json \ "data" \\ "error").mkString(" ")
-                       println("Error is" + error1)
+                       postError = (json \ "data" \\ "error").mkString(" ")
+                       println("Error is " + postError)
 
                        var resp_account_token = (json \ "data" \ "account_token").as[String]
                        var resp_primoris_fee = (json \ "data" \ "primoris_fee").as[String]
@@ -165,53 +169,44 @@ class WidgetController @Inject()(widgetService: WidgetRepository,cc: MessagesCon
                        var resp_retry_id = (json \ "data" \ "retry_id").as[String]
                        var resp_authorization_code = (json \ "data" \ "authorization_code").as[String]
                        var resp_trans_id = (json \ "data" \ "trans_id").as[String]
-                       total_amount = resp_amount_total
-                       trans_id = resp_trans_id
+                       totalAmount = resp_amount_total
+                       transactionId = resp_trans_id
                        println("Value of s is" + s)
-                       stat = s
+                       transactionStatus = s
                        
-                        
+                      val cardDetails = Card(id,name,state,zip,account_type,card_number takeRight 4,expiration_date,cvv2,account_number,prepaid,amount) 
+                      cardService.insert(cardDetails)  
                       val transaction = Transaction(resp_trans_id,resp_authorization_code,resp_account_token,id,resp_primoris_fee,resp_installment_total,resp_callID,resp_settlement_id,resp_payment_detail_id,resp_payment_date ,resp_amount,resp_payment_token,resp_payment_token_status,resp_payment_type,resp_account_status,resp_payment_name ,resp_amount_total ,resp_installment_made,resp_confirmation_number,resp_installment_plan,resp_add_date,resp_retry_id)
-                      widgetService.insertTransaction(transaction)
+                      cardService.insertTransaction(transaction)
                       Future.successful(Ok("Response is "+response.body)) 
                         
-                        }
+                                            }
 
                      case _ => 
-                      
-                        
-                        
-                      Future.successful(BadRequest("Response is "+response.body)) 
-                        
+                      Future.successful(Redirect(routes.CardController.responseErrorForm(transactionStatus,postError) )) 
                                  
-                                  }
+                                        }
                            
-                        } 
+                          } 
 
-          
             Thread.sleep(6000)
-            Redirect(routes.WidgetController.result(trans_id,stat,error1,total_amount) )
-            
-              
-            
-          
+            Redirect(routes.CardController.result(transactionId,transactionStatus,postError,totalAmount) )
   }
+
 
   // This will be the action that displays the appropriate result to the user
   def result(trans_id:String,stat:Int,error1:String,total_amount:String) = Action {
     
-     
-     println("Value of error is from result" + error1)
-     println("Value of stat is from result" + stat)
+     //if error is not dete
      if(!error1.isEmpty())
      {
-       
-        Redirect(routes.WidgetController.errorForm1(error1))
-        
+        var error = error1.replaceAll("\\{\\}\"\\[\\]\""," ")
+        error = error.replaceAll("\"","")
+       Redirect(routes.CardController.errorForm(error)) 
      } 
      else
      {
-        Redirect(routes.WidgetController.successForm(trans_id,stat,"Transaction successful",total_amount))
+        Redirect(routes.CardController.successForm(trans_id,stat,"Transaction successful",total_amount))
      }
 
 

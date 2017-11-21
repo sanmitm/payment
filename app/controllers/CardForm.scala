@@ -1,6 +1,6 @@
 package controllers
 
-object WidgetForm {
+object CardForm {
   import play.api.data.Forms._
   import play.api.data.Form
   import play.api.data.format.Formats._
