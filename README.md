@@ -14,6 +14,7 @@ ________________________________________________________________________________
 Postgres database Table insertion queries :
 
 Card_Details Table : To store the credit card information.
+```
 
                                  Table "public.card_details"
      Column      |         Type          | Modifiers | Storage  | Stats target | Description
@@ -33,7 +34,7 @@ Indexes:
     "card_details_pkey" PRIMARY KEY, btree (id)
 Referenced by:
     TABLE "transaction" CONSTRAINT "transaction_id_fkey" FOREIGN KEY (id) REFERENCES card_details(id)
-	
+```	
 
 Query:	
 ```
@@ -42,7 +43,9 @@ account_type character varying(10),card_number character varying(50),expiration_
 account_number character varying(50),prepaid character varying(10), amount double precision);
 ```
 
+
 Transaction Table : To store the transaction details.
+```
 
                                     Table "public.transaction"
         Column        |         Type          | Modifiers | Storage  | Stats target | Description
@@ -73,6 +76,7 @@ Indexes:
     "transaction_pkey" PRIMARY KEY, btree (trans_id)
 Foreign-key constraints:
     "transaction_id_fkey" FOREIGN KEY (id) REFERENCES card_details(id)
+```
 	
 Query:
 ```
