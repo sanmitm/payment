@@ -42,9 +42,9 @@ class CardController @Inject()(cardService: CardRepository,cc: MessagesControlle
 
   
   private val postUrl = routes.CardController.createCardDetails()
-  private var apiUrl = "https://tyrion.primorisservices.com/payments/direct"
-  private var publicKey = "H6ZJBESFRi0tXcO4gPgYq0N7"
-  private var privateKey = "rav6auQvi6aOyaKI1ldXJwlt" 
+  private val apiUrl = "https://tyrion.primorisservices.com/payments/direct"
+  private val publicKey = "H6ZJBESFRi0tXcO4gPgYq0N7"
+  private val privateKey = "rav6auQvi6aOyaKI1ldXJwlt" 
 
 
   def index = Action {
@@ -146,7 +146,7 @@ class CardController @Inject()(cardService: CardRepository,cc: MessagesControlle
                       
                        val json = Json.parse(response.body)
                        postError = (json \ "data" \\ "error").mkString(" ")
-                       println("Error is " + postError)
+                       
 
                        var resp_account_token = (json \ "data" \ "account_token").as[String]
                        var resp_primoris_fee = (json \ "data" \ "primoris_fee").as[String]
@@ -171,7 +171,6 @@ class CardController @Inject()(cardService: CardRepository,cc: MessagesControlle
                        var resp_trans_id = (json \ "data" \ "trans_id").as[String]
                        totalAmount = resp_amount_total
                        transactionId = resp_trans_id
-                       println("Value of s is" + s)
                        transactionStatus = s
                        
                       val cardDetails = Card(id,name,state,zip,account_type,card_number takeRight 4,expiration_date,cvv2,account_number,prepaid,amount) 
